@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ brand }} — ScienceLab AI Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep: #030712;
+      --bg-navy: #0a0f1e;
+      --bg-card: rgba(12, 18, 40, 0.72);
+      --neon-blue: #00d4ff;
+      --neon-cyan: #00fff2;
+      --neon-purple: #a855f7;
+      --neon-violet: #c026d3;
+      --neon-pink: #ec4899;
+      --text-primary: #e8f0ff;
+      --text-secondary: #94a3b8;
+      --glass-border: rgba(0, 212, 255, 0.25);
+      --glow-blue: 0 0 20px rgba(0, 212, 255, 0.4);
+      --glow-purple: 0 0 25px rgba(168, 85, 247, 0.45);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridMove 40s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes gridMove {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(60px, 60px); }
+    }
+
+    .bg-particles {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute; width: 3px; height: 3px; border-radius: 50%;
+      background: var(--neon-cyan); box-shadow: 0 0 8px var(--neon-cyan);
+      animation: floatParticle 12s ease-in-out infinite;
+      opacity: 0.6;
+    }
+    @keyframes floatParticle {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.4; }
+      50% { transform: translateY(-40px) scale(1.3); opacity: 0.9; }
+    }
+
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.35;
+      pointer-events: none; z-index: 0; animation: orbFloat 18s ease-in-out infinite;
+    }
+    .orb-1 { width: 420px; height: 420px; background: var(--neon-blue); top: -100px; left: -80px; }
+    .orb-2 { width: 350px; height: 350px; background: var(--neon-purple); bottom: 10%; right: -60px; animation-delay: -6s; }
+    .orb-3 { width: 280px; height: 280px; background: var(--neon-violet); top: 40%; left: 30%; animation-delay: -12s; opacity: 0.2; }
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -20px) scale(1.05); }
+      66% { transform: translate(-20px, 25px) scale(0.95); }
+    }
+
+    .light-beam {
+      position: fixed; width: 2px; height: 100vh;
+      background: linear-gradient(to bottom, transparent, var(--neon-cyan), transparent);
+      opacity: 0.15; z-index: 0; pointer-events: none;
+      animation: beamSweep 15s linear infinite;
+    }
+    .beam-1 { left: 15%; animation-delay: 0s; }
+    .beam-2 { left: 55%; animation-delay: -5s; }
+    .beam-3 { left: 80%; animation-delay: -10s; }
+    @keyframes beamSweep {
+      0% { opacity: 0.05; transform: translateY(-20%); }
+      50% { opacity: 0.2; }
+      100% { opacity: 0.05; transform: translateY(20%); }
+    }
+
+    /* TOP NAV */
+    .top-nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1.75rem;
+      background: rgba(5, 10, 25, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    }
+    .nav-left { display: flex; align-items: center; gap: 1rem; }
+    .logo-area {
+      display: flex; align-items: center; gap: 0.75rem;
+      font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 1.35rem;
+      background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .logo-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--glow-blue); font-size: 1.3rem;
+      animation: logoPulse 3s ease-in-out infinite;
+    }
+    @keyframes logoPulse {
+      0%, 100% { box-shadow: 0 0 15px rgba(0, 212, 255, 0.5); }
+      50% { box-shadow: 0 0 28px rgba(168, 85, 247, 0.7); }
+    }
+    .nav-title-block { display: flex; flex-direction: column; }
+    .nav-title { font-family: 'Orbitron', sans-serif; font-size: 0.95rem; letter-spacing: 1px; }
+    .nav-subtitle { font-size: 0.7rem; color: var(--text-secondary); }
+
+    .nav-links { display: flex; gap: 0.35rem; align-items: center; }
+    .nav-link {
+      padding: 0.45rem 0.9rem; border-radius: 999px; font-size: 0.82rem;
+      color: var(--text-secondary); text-decoration: none;
+      transition: all 0.3s ease; border: 1px solid transparent;
+      position: relative;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: var(--neon-cyan); border-color: rgba(0, 212, 255, 0.4);
+      background: rgba(0, 212, 255, 0.08); box-shadow: var(--glow-blue);
+    }
+    .nav-link.active::after {
+      content: ''; position: absolute; bottom: -2px; left: 20%; right: 20%;
+      height: 2px; background: var(--neon-cyan); border-radius: 2px;
+      box-shadow: 0 0 8px var(--neon-cyan);
+    }
+
+    .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+    .powered-badge {
+      font-size: 0.7rem; padding: 0.35rem 0.75rem; border-radius: 999px;
+      background: linear-gradient(90deg, rgba(0, 212, 255, 0.15), rgba(168, 85, 247, 0.15));
+      border: 1px solid rgba(0, 212, 255, 0.35); color: var(--neon-cyan);
+      display: flex; align-items: center; gap: 0.35rem;
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+      animation: badgeGlow 4s ease-in-out infinite;
+    }
+    @keyframes badgeGlow {
+      0%, 100% { box-shadow: 0 0 10px rgba(0, 212, 255, 0.25); }
+      50% { box-shadow: 0 0 18px rgba(168, 85, 247, 0.4); }
+    }
+    .icon-btn {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+      color: var(--text-secondary); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.3s ease; font-size: 1rem;
+    }
+    .icon-btn:hover {
+      color: var(--neon-cyan); border-color: var(--neon-cyan);
+      box-shadow: var(--glow-blue); transform: translateY(-2px);
+    }
+
+    .main-wrapper {
+      display: grid;
+      grid-template-columns: 280px 1fr 300px;
+      gap: 1.25rem;
+      padding: 1.25rem 1.5rem 2rem;
+      position: relative; z-index: 1;
+      max-width: 1600px; margin: 0 auto;
+      min-height: calc(100vh - 70px);
+    }
+
+    .left-col { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    .ai-character-card {
+      background: var(--bg-card); border: 1px solid var(--glass-border);
+      border-radius: 24px; padding: 1.5rem 1rem;
+      backdrop-filter: blur(16px); position: relative; overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+      text-align: center;
+    }
+    .ai-character-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(0,212,255,0.12), transparent 60%);
+      pointer-events: none;
+    }
+    .character-container {
+      width: 160px; height: 200px; margin: 0 auto 1rem;
+      position: relative; animation: characterFloat 5s ease-in-out infinite;
+    }
+    @keyframes characterFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .character-body {
+      width: 100%; height: 100%; border-radius: 50% 50% 40% 40%;
+      background: linear-gradient(160deg, #1a2744 0%, #0d1528 50%, #1e1a3a 100%);
+      border: 2px solid rgba(0, 212, 255, 0.5);
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.3), inset 0 0 40px rgba(168, 85, 247, 0.15);
+      position: relative; overflow: hidden;
+    }
+    .character-face {
+      position: absolute; top: 28%; left: 50%; transform: translateX(-50%);
+      width: 70px; height: 70px; border-radius: 50%;
+      background: linear-gradient(180deg, #2a3a5c, #1a2540);
+      border: 1px solid rgba(0, 212, 255, 0.4);
+    }
+    .character-eye {
+      position: absolute; top: 38%; width: 10px; height: 10px; border-radius: 50%;
+      background: var(--neon-cyan); box-shadow: 0 0 12px var(--neon-cyan);
+      animation: blink 4s ease-in-out infinite;
+    }
+    .eye-l { left: 22%; }
+    .eye-r { right: 22%; }
+    @keyframes blink {
+      0%, 45%, 55%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.1); }
+    }
+    .character-headphones {
+      position: absolute; top: 18%; left: -8px; right: -8px; height: 28px;
+      border: 3px solid var(--neon-purple); border-bottom: none;
+      border-radius: 40px 40px 0 0; box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+    }
+    .character-headphones::before, .character-headphones::after {
+      content: ''; position: absolute; top: 12px; width: 18px; height: 28px;
+      background: linear-gradient(180deg, var(--neon-purple), var(--neon-blue));
+      border-radius: 6px; box-shadow: 0 0 10px var(--neon-purple);
+    }
+    .character-headphones::before { left: -6px; }
+    .character-headphones::after { right: -6px; }
+    .holo-element {
+      position: absolute; bottom: 15px; right: -10px;
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, rgba(0,212,255,0.3), rgba(168,85,247,0.3));
+      border: 1px solid var(--neon-cyan);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; animation: holoSpin 6s linear infinite;
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+    }
+    @keyframes holoSpin {
+      0% { transform: rotateY(0deg) translateY(0); }
+      50% { transform: rotateY(180deg) translateY(-5px); }
+      100% { transform: rotateY(360deg) translateY(0); }
+    }
+    .speech-bubble {
+      position: absolute; top: 10px; right: 8px;
+      background: rgba(0, 30, 60, 0.9); border: 1px solid var(--neon-cyan);
+      border-radius: 12px 12px 4px 12px; padding: 0.5rem 0.75rem;
+      font-size: 0.7rem; max-width: 130px; line-height: 1.3;
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+      animation: bubblePop 0.6s ease-out, bubbleFloat 3s ease-in-out 0.6s infinite;
+    }
+    @keyframes bubblePop {
+      from { opacity: 0; transform: scale(0.5); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes bubbleFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .character-name {
+      font-family: 'Orbitron', sans-serif; font-size: 1.1rem; margin-bottom: 0.25rem;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .character-status {
+      font-size: 0.75rem; color: #4ade80;
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #4ade80;
+      box-shadow: 0 0 8px #4ade80; animation: statusPulse 2s ease-in-out infinite;
+    }
+    @keyframes statusPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .side-nav {
+      background: var(--bg-card); border: 1px solid var(--glass-border);
+      border-radius: 20px; padding: 1rem; backdrop-filter: blur(16px);
+      display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .side-nav-btn {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.7rem 1rem; border-radius: 14px;
+      background: transparent; border: 1px solid transparent;
+      color: var(--text-secondary); font-size: 0.85rem; cursor: pointer;
+      transition: all 0.3s ease; text-align: left; width: 100%;
+    }
+    .side-nav-btn:hover, .side-nav-btn.active {
+      background: rgba(0, 212, 255, 0.1); border-color: rgba(0, 212, 255, 0.4);
+      color: var(--neon-cyan); box-shadow: 0 0 18px rgba(0, 212, 255, 0.2);
+      transform: translateX(4px);
+    }
+    .side-nav-btn .icon { font-size: 1.1rem; width: 24px; text-align: center; }
+
+    .center-col { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
+
+    .hero-banner {
+      position: relative; border-radius: 24px; overflow: hidden;
+      background: linear-gradient(135deg, rgba(10, 20, 50, 0.9), rgba(30, 15, 50, 0.85));
+      border: 1px solid var(--glass-border);
+      padding: 2rem 2.5rem; min-height: 160px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+    }
+    .hero-banner::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(0,212,255,0.08), transparent);
+      animation: lightSweep 6s ease-in-out infinite;
+    }
+    @keyframes lightSweep {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .hero-content { position: relative; z-index: 1; }
+    .hero-headline {
+      font-family: 'Orbitron', sans-serif; font-size: 1.85rem; font-weight: 700;
+      background: linear-gradient(90deg, #fff, var(--neon-cyan), var(--neon-purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem; letter-spacing: 0.5px;
+      animation: textGlow 4s ease-in-out infinite;
+    }
+    @keyframes textGlow {
+      0%, 100% { filter: drop-shadow(0 0 8px rgba(0,212,255,0.3)); }
+      50% { filter: drop-shadow(0 0 16px rgba(168,85,247,0.5)); }
+    }
+    .hero-sub { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 1rem; max-width: 540px; }
+    .hero-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .hero-tag {
+      padding: 0.3rem 0.75rem; border-radius: 999px; font-size: 0.75rem;
+      background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3);
+      color: var(--neon-cyan);
+    }
+    .hero-visual {
+      position: absolute; right: 30px; top: 50%; transform: translateY(-50%);
+      width: 140px; height: 100px; opacity: 0.75;
+      background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(168,85,247,0.2));
+      border-radius: 16px; border: 1px solid rgba(0,212,255,0.3);
+      display: flex; align-items: center; justify-content: center; font-size: 3rem;
+      animation: heroFloat 4s ease-in-out infinite;
+    }
+    @keyframes heroFloat {
+      0%, 100% { transform: translateY(-50%) rotate(0deg); }
+      50% { transform: translateY(-55%) rotate(2deg); }
+    }
+
+    .chat-window {
+      flex: 1; display: flex; flex-direction: column;
+      background: var(--bg-card); border: 1px solid var(--glass-border);
+      border-radius: 24px; overflow: hidden; min-height: 420px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+    }
+    .chat-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.25rem; border-bottom: 1px solid var(--glass-border);
+      background: rgba(0, 20, 40, 0.5);
+    }
+    .chat-header-left { display: flex; align-items: center; gap: 0.75rem; }
+    .chat-ai-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--glow-blue); font-size: 1.2rem;
+    }
+    .chat-heading { font-family: 'Orbitron', sans-serif; font-size: 1rem; }
+    .chat-status { font-size: 0.75rem; color: #4ade80; }
+
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 1.25rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      scroll-behavior: smooth;
+    }
+    .chat-messages::-webkit-scrollbar { width: 6px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(0, 212, 255, 0.3); border-radius: 3px;
+    }
+
+    .message {
+      display: flex; gap: 0.75rem; max-width: 85%;
+      animation: msgIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(16px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .message.user { align-self: flex-end; flex-direction: row-reverse; }
+    .msg-avatar {
+      width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 0.95rem;
+    }
+    .message.ai .msg-avatar {
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.4);
+    }
+    .message.user .msg-avatar {
+      background: linear-gradient(135deg, #334155, #1e293b);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .msg-bubble {
+      padding: 0.85rem 1.1rem; border-radius: 16px; font-size: 0.9rem; line-height: 1.55;
+      position: relative;
+    }
+    .message.ai .msg-bubble {
+      background: rgba(0, 40, 80, 0.5); border: 1px solid rgba(0, 212, 255, 0.25);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    .message.user .msg-bubble {
+      background: linear-gradient(135deg, rgba(0, 100, 180, 0.4), rgba(80, 40, 160, 0.35));
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-bottom-right-radius: 4px;
+    }
+    .msg-meta {
+      display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem;
+      font-size: 0.7rem; color: var(--text-secondary);
+    }
+    .msg-feedback { cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
+    .msg-feedback:hover { opacity: 1; }
+
+    .typing-indicator {
+      display: none; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem;
+      background: rgba(0, 40, 80, 0.4); border-radius: 16px; width: fit-content;
+      border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+    .typing-indicator.show { display: flex; animation: msgIn 0.3s ease; }
+    .typing-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--neon-cyan);
+      animation: typingBounce 1.2s ease-in-out infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    .chat-input-area {
+      padding: 1rem 1.25rem; border-top: 1px solid var(--glass-border);
+      background: rgba(0, 15, 35, 0.6);
+    }
+    .input-wrapper {
+      display: flex; align-items: flex-end; gap: 0.6rem;
+      background: rgba(10, 20, 45, 0.8); border: 1px solid var(--glass-border);
+      border-radius: 18px; padding: 0.5rem 0.6rem 0.5rem 1rem;
+      transition: all 0.3s ease;
+    }
+    .input-wrapper:focus-within {
+      border-color: var(--neon-cyan); box-shadow: 0 0 20px rgba(0, 212, 255, 0.25);
+    }
+    .input-icon-btn {
+      background: none; border: none; color: var(--text-secondary);
+      font-size: 1.2rem; cursor: pointer; padding: 0.4rem;
+      transition: color 0.2s;
+    }
+    .input-icon-btn:hover { color: var(--neon-cyan); }
+    #userInput {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text-primary); font-size: 0.95rem; resize: none;
+      max-height: 120px; min-height: 24px; font-family: inherit; line-height: 1.4;
+      padding: 0.4rem 0;
+    }
+    #userInput::placeholder { color: var(--text-secondary); opacity: 0.7; }
+    .send-btn {
+      width: 44px; height: 44px; border-radius: 14px; border: none; cursor: pointer;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+      color: white; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 18px rgba(0, 212, 255, 0.4);
+      transition: all 0.25s ease; flex-shrink: 0;
+    }
+    .send-btn:hover {
+      transform: scale(1.06); box-shadow: 0 0 28px rgba(168, 85, 247, 0.6);
+    }
+    .send-btn:active { transform: scale(0.95); }
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .quick-actions {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem;
+    }
+    .qa-card {
+      background: var(--bg-card); border: 1px solid var(--glass-border);
+      border-radius: 16px; padding: 1.1rem 0.9rem; text-align: center;
+      cursor: pointer; transition: all 0.35s ease; backdrop-filter: blur(12px);
+      position: relative; overflow: hidden;
+    }
+    .qa-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(168,85,247,0.08));
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .qa-card:hover {
+      transform: translateY(-6px); border-color: var(--neon-cyan);
+      box-shadow: 0 12px 30px rgba(0, 212, 255, 0.2);
+    }
+    .qa-card:hover::before { opacity: 1; }
+    .qa-icon { font-size: 1.6rem; margin-bottom: 0.5rem; display: block; }
+    .qa-title { font-size: 0.82rem; font-weight: 600; margin-bottom: 0.2rem; }
+    .qa-sub { font-size: 0.7rem; color: var(--text-secondary); }
+
+    .right-col { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    .promo-card {
+      background: linear-gradient(160deg, rgba(0, 60, 120, 0.4), rgba(80, 20, 120, 0.35));
+      border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 20px;
+      padding: 1.5rem; text-align: center; position: relative; overflow: hidden;
+    }
+    .promo-card::after {
+      content: ''; position: absolute; top: -50%; right: -30%;
+      width: 150px; height: 150px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,212,255,0.2), transparent);
+      animation: orbFloat 10s ease-in-out infinite;
+    }
+    .promo-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .promo-title {
+      font-family: 'Orbitron', sans-serif; font-size: 1.15rem; margin-bottom: 0.5rem;
+      background: linear-gradient(90deg, var(--neon-cyan), #fff);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .promo-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+
+    .info-panel {
+      background: var(--bg-card); border: 1px solid var(--glass-border);
+      border-radius: 20px; padding: 1.25rem; backdrop-filter: blur(16px);
+    }
+    .panel-title {
+      font-family: 'Orbitron', sans-serif; font-size: 0.95rem; margin-bottom: 1rem;
+      color: var(--neon-cyan);
+    }
+    .info-cards { display: flex; flex-direction: column; gap: 0.6rem; }
+    .info-card {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem; border-radius: 12px;
+      background: rgba(255,255,255,0.03); border: 1px solid transparent;
+      transition: all 0.3s ease; cursor: default;
+    }
+    .info-card:hover {
+      border-color: rgba(0, 212, 255, 0.35); background: rgba(0, 212, 255, 0.06);
+      transform: translateX(4px);
+    }
+    .info-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0, 212, 255, 0.12); font-size: 1.1rem; flex-shrink: 0;
+    }
+    .info-text { font-size: 0.82rem; }
+    .info-text strong { display: block; margin-bottom: 0.15rem; }
+
+    .updates-panel {
+      background: var(--bg-card); border: 1px solid var(--glass-border);
+      border-radius: 20px; padding: 1.25rem; backdrop-filter: blur(16px);
+    }
+    .update-item {
+      display: flex; gap: 0.75rem; padding: 0.7rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: all 0.25s;
+    }
+    .update-item:last-child { border-bottom: none; }
+    .update-item:hover { padding-left: 6px; }
+    .update-date { font-size: 0.7rem; color: var(--neon-cyan); min-width: 55px; }
+    .update-content { font-size: 0.8rem; color: var(--text-secondary); }
+    .view-all {
+      display: block; text-align: center; margin-top: 0.75rem;
+      font-size: 0.8rem; color: var(--neon-cyan); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .view-all:hover { color: var(--neon-purple); }
+
+    .quick-links {
+      display: flex; justify-content: space-around; gap: 0.5rem;
+      background: var(--bg-card); border: 1px solid var(--glass-border);
+      border-radius: 16px; padding: 1rem; backdrop-filter: blur(12px);
+    }
+    .ql-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+      background: none; border: none; color: var(--text-secondary);
+      font-size: 0.7rem; cursor: pointer; transition: all 0.3s;
+    }
+    .ql-icon {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.25);
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+      transition: all 0.3s;
+    }
+    .ql-btn:hover .ql-icon {
+      background: rgba(0, 212, 255, 0.2); box-shadow: 0 0 16px rgba(0, 212, 255, 0.4);
+      transform: scale(1.1);
+    }
+    .ql-btn:hover { color: var(--neon-cyan); }
+
+    .footer {
+      position: relative; z-index: 1;
+      background: rgba(5, 10, 25, 0.9); border-top: 1px solid var(--glass-border);
+      padding: 2rem 1.5rem 1.5rem; margin-top: 1rem;
+    }
+    .footer-wave {
+      position: absolute; top: -2px; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple), var(--neon-cyan), var(--neon-blue));
+      background-size: 200% 100%; animation: waveFlow 8s linear infinite;
+    }
+    @keyframes waveFlow {
+      0% { background-position: 0% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .footer-content {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-brand {
+      font-family: 'Orbitron', sans-serif; font-size: 1rem;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .footer-tagline { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.25rem; }
+    .footer-links { display: flex; gap: 1.25rem; }
+    .footer-links a {
+      color: var(--text-secondary); text-decoration: none; font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--neon-cyan); }
+    .footer-social { display: flex; gap: 0.6rem; }
+    .social-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-secondary); text-decoration: none; transition: all 0.3s;
+    }
+    .social-icon:hover {
+      color: var(--neon-cyan); border-color: var(--neon-cyan);
+      box-shadow: var(--glow-blue); transform: translateY(-3px);
+    }
+
+    @media (max-width: 1200px) {
+      .main-wrapper { grid-template-columns: 240px 1fr 260px; }
+      .quick-actions { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 992px) {
+      .main-wrapper { grid-template-columns: 1fr; }
+      .left-col, .right-col { display: none; }
+      .nav-links { display: none; }
+      .quick-actions { grid-template-columns: repeat(2, 1fr); }
+      .hero-visual { display: none; }
+    }
+    @media (max-width: 600px) {
+      .top-nav { padding: 0.6rem 1rem; }
+      .logo-area { font-size: 1.1rem; }
+      .hero-headline { font-size: 1.4rem; }
+      .quick-actions { grid-template-columns: 1fr 1fr; }
+      .footer-content { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-particles" id="particles"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="light-beam beam-1"></div>
+  <div class="light-beam beam-2"></div>
+  <div class="light-beam beam-3"></div>
+
+  <nav class="top-nav">
+    <div class="nav-left">
+      <div class="logo-icon">🔬</div>
+      <div class="logo-area">
+        <div class="nav-title-block">
+          <span class="nav-title">{{ brand }}</span>
+          <span class="nav-subtitle">ScienceLab AI Assistant</span>
+        </div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="#" class="nav-link active">Home</a>
+      <a href="#" class="nav-link">About</a>
+      <a href="#" class="nav-link">Products</a>
+      <a href="#" class="nav-link">Careers</a>
+      <a href="#" class="nav-link">Learn</a>
+      <a href="#" class="nav-link">Resources</a>
+    </div>
+    <div class="nav-right">
+      <div class="powered-badge">⚡ Powered by Gemini</div>
+      <button class="icon-btn" title="Theme">🌓</button>
+      <button class="icon-btn" title="Menu">☰</button>
+    </div>
+  </nav>
+
+  <div class="main-wrapper">
+    <aside class="left-col">
+      <div class="ai-character-card">
+        <div class="speech-bubble">Ready to explore science?</div>
+        <div class="character-container">
+          <div class="character-body">
+            <div class="character-headphones"></div>
+            <div class="character-face">
+              <div class="character-eye eye-l"></div>
+              <div class="character-eye eye-r"></div>
+            </div>
+            <div class="holo-element">⚛️</div>
+          </div>
+        </div>
+        <div class="character-name">{{ assistant }}</div>
+        <div class="character-status"><span class="status-dot"></span> Online • Ready</div>
+      </div>
+
+      <div class="side-nav">
+        {% for item in nav_items %}
+        <button class="side-nav-btn {% if loop.first %}active{% endif %}" data-action="{{ item.id }}">
+          <span class="icon">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+        </button>
+        {% endfor %}
+      </div>
+    </aside>
+
+    <main class="center-col">
+      <section class="hero-banner">
+        <div class="hero-content">
+          <h1 class="hero-headline">Science for a Better Tomorrow</h1>
+          <p class="hero-sub">Master laboratory techniques, scientific concepts, research careers, interview readiness and placement success with your dedicated ScienceLab AI mentor.</p>
+          <div class="hero-tags">
+            <span class="hero-tag">Innovation</span>
+            <span class="hero-tag">Learning</span>
+            <span class="hero-tag">Growth</span>
+            <span class="hero-tag">Research Ready</span>
+          </div>
+        </div>
+        <div class="hero-visual">🧪</div>
+      </section>
+
+      <section class="chat-window">
+        <div class="chat-header">
+          <div class="chat-header-left">
+            <div class="chat-ai-icon">✦</div>
+            <div>
+              <div class="chat-heading">Chat with ScienceLab AI</div>
+              <div class="chat-status">● Online</div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="message ai">
+            <div class="msg-avatar">✦</div>
+            <div>
+              <div class="msg-bubble">{{ welcome }}</div>
+              <div class="msg-meta"><span>Just now</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="typing-indicator" id="typingIndicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+        <div class="chat-input-area">
+          <div class="input-wrapper">
+            <button class="input-icon-btn" title="Attach">📎</button>
+            <textarea id="userInput" rows="1" placeholder="Ask about experiments, lab techniques, research careers, interviews..."></textarea>
+            <button class="input-icon-btn" title="Emoji">😊</button>
+            <button class="send-btn" id="sendBtn" title="Send">➤</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="quick-actions">
+        {% for action in quick_actions %}
+        <div class="qa-card" data-prompt="{{ action.title }}">
+          <span class="qa-icon">{{ action.icon }}</span>
+          <div class="qa-title">{{ action.title }}</div>
+          <div class="qa-sub">{{ action.subtitle }}</div>
+        </div>
+        {% endfor %}
+      </section>
+    </main>
+
+    <aside class="right-col">
+      <div class="promo-card">
+        <div class="promo-icon">🚀</div>
+        <div class="promo-title">Learn · Grow · Achieve</div>
+        <p class="promo-text">Build lab skills, master scientific methods, ace research interviews and land your dream role in science & technology.</p>
+      </div>
+
+      <div class="info-panel">
+        <div class="panel-title">Why ScienceLab?</div>
+        <div class="info-cards">
+          <div class="info-card">
+            <div class="info-icon">🌍</div>
+            <div class="info-text"><strong>Global Presence</strong> Connect with research communities and labs worldwide.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-icon">⚡</div>
+            <div class="info-text"><strong>Innovative Technology</strong> Cutting-edge instrumentation, AI in science & modern methods.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-icon">📈</div>
+            <div class="info-text"><strong>Career Growth</strong> High demand for skilled scientists and lab professionals.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-icon">🤝</div>
+            <div class="info-text"><strong>Inclusive Opportunities</strong> Diverse roles from pure research to industry R&D.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="updates-panel">
+        <div class="panel-title">Latest Updates</div>
+        <div class="update-item">
+          <div class="update-date">Sep 20</div>
+          <div class="update-content">New AI-assisted lab analysis workflows</div>
+        </div>
+        <div class="update-item">
+          <div class="update-date">Sep 14</div>
+          <div class="update-content">Updated biosafety & lab protocol guidelines</div>
+        </div>
+        <div class="update-item">
+          <div class="update-date">Sep 07</div>
+          <div class="update-content">STEM internship & research placement tips</div>
+        </div>
+        <a href="#" class="view-all">View All →</a>
+      </div>
+
+      <div class="quick-links">
+        <button class="ql-btn"><div class="ql-icon">🌐</div>Official</button>
+        <button class="ql-btn"><div class="ql-icon">💬</div>Support</button>
+        <button class="ql-btn"><div class="ql-icon">📚</div>Resources</button>
+        <button class="ql-btn"><div class="ql-icon">📅</div>Events</button>
+      </div>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-wave"></div>
+    <div class="footer-content">
+      <div>
+        <div class="footer-brand">{{ brand }}</div>
+        <div class="footer-tagline">{{ tagline }}</div>
+      </div>
+      <div class="footer-links">
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Careers</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-social">
+        <a href="#" class="social-icon">𝕏</a>
+        <a href="#" class="social-icon">in</a>
+        <a href="#" class="social-icon">▶</a>
+        <a href="#" class="social-icon">◎</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const particlesEl = document.getElementById('particles');
+    for (let i = 0; i < 40; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.top = Math.random() * 100 + '%';
+      p.style.animationDelay = (Math.random() * 10) + 's';
+      p.style.animationDuration = (8 + Math.random() * 10) + 's';
+      particlesEl.appendChild(p);
+    }
+
+    const chatMessages = document.getElementById('chatMessages');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const typingIndicator = document.getElementById('typingIndicator');
+
+    function nowTime() {
+      return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function appendMessage(text, isUser) {
+      const div = document.createElement('div');
+      div.className = 'message ' + (isUser ? 'user' : 'ai');
+      div.innerHTML = `
+        <div class="msg-avatar">${isUser ? '👤' : '✦'}</div>
+        <div>
+          <div class="msg-bubble">${formatText(text)}</div>
+          <div class="msg-meta">
+            <span>${nowTime()}</span>
+            ${!isUser ? '<span class="msg-feedback">👍</span><span class="msg-feedback">👎</span>' : ''}
+          </div>
+        </div>
+      `;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function formatText(text) {
+      return text
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+    }
+
+    async function sendMessage(msg) {
+      const text = (msg || userInput.value).trim();
+      if (!text) return;
+
+      appendMessage(text, true);
+      userInput.value = '';
+      userInput.style.height = 'auto';
+      sendBtn.disabled = true;
+      typingIndicator.classList.add('show');
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      try {
+        const res = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        typingIndicator.classList.remove('show');
+        appendMessage(data.reply || data.error || 'No response received.', false);
+      } catch (err) {
+        typingIndicator.classList.remove('show');
+        appendMessage('Connection error. Please try again.', false);
+      } finally {
+        sendBtn.disabled = false;
+        userInput.focus();
+      }
+    }
+
+    sendBtn.addEventListener('click', () => sendMessage());
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+    userInput.addEventListener('input', () => {
+      userInput.style.height = 'auto';
+      userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+    });
+
+    document.querySelectorAll('.qa-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const prompt = card.dataset.prompt;
+        sendMessage(`Tell me about ${prompt} in the context of ScienceLab and scientific careers`);
+      });
+    });
+
+    document.querySelectorAll('.side-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.side-nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const label = btn.querySelector('span:last-child').textContent;
+        sendMessage(`Give me an overview of ${label} related to ScienceLab, laboratory science and research careers`);
+      });
+    });
+  </script>
+</body>
+</html>
